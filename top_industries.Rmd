@@ -1,0 +1,70 @@
+---
+title: "Moz Pro Industry Analysis"
+output:
+  html_document:
+    df_print: paged
+---
+
+## [BI-2728](https://seomoz.atlassian.net/browse/BI-2728)
+
+### Top Industries for Moz Pro Self-Serve
+
+Goal: Identify the most common (and therefore valuable) industries for Moz Pro self-service users. We already know that agencies are our most common customers, but we would like to know 2nd most, 3rd most, etc. This will allow Moz to formulate business strategies for these markets.
+
+```{r setup, include=FALSE}
+# Basic librarys for graphing, DBs, etc.
+library(knitr)
+library(ggplot2)
+library(tidyverse)
+library(RJDBC)
+library(DBI)
+library(lubridate)
+source(file = '~/db_connection_tools.R')
+
+# Establish the connection
+con <- redshift_connect(yaml_file = 'config.yml')
+qry <- getSQL(filepath = 'sql/top_industries.sql')
+
+df <- dbGetQuery(conn = con, statement = qry)
+
+df_clean <- df %>%
+            mutate(dt = ymd(start_date)) %>%
+            mutate(pay_start = ymd(pay_start_date)) %>%
+            select(subscription_id, 
+                   tier, 
+                   period, 
+                   start_date, 
+                   pay_start,
+                   sku_id,
+                   paying_month,
+                   industry)
+```
+
+We have `r nrow(df_clean)` Moz Pro customers who are:  
+- active  
+- paying  
+- chosen an industry  
+
+This is out of a possible population of approximately 19,000 active paying customers, or `r (nrow(df_clean)/19000)*100`%
+
+------
+
+### Count by Industry
+```{r industry_freq, include=FALSE}
+counts <- df_clean %>%
+          group_by(industry) %>%
+          tally() %>%
+          arrange(-n)
+```
+
+------
+
+
+```{r print_output, echo=FALSE}
+kable(counts, caption="Frequency of Industry for Moz Pro Customers")
+
+```
+
+
+
+
