@@ -1,6 +1,0 @@
-moz_redshift:
-  host: mozredshift.cwqxzturhwua.us-east-1.redshift.amazonaws.com
-  database: mozdb
-  user: bi_rob_l_ro
-  port: 5439
-  password: 5n!iqnl!RzZD
